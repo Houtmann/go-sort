@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Houtmann/go-sort/pkg"
+	"github.com/houtmann/go-sort/pkg"
 	"golang.org/x/tools/go/analysis"
 )
 
