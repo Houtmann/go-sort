@@ -9,18 +9,29 @@ import (
 
 var SliceSortAnalyzer = &analysis.Analyzer{
 	Name: "slicesort",
-	Doc:  "Checks if slice declaration",
+	Doc:  "check function variadic string param order",
 	Run:  runslicesort,
 }
 
 func runslicesort(pass *analysis.Pass) (interface{}, error) {
 	for _, file := range pass.Files {
 		ast.Inspect(file, func(node ast.Node) bool {
-			sliceexpr, ok := node.(*ast.SliceExpr)
+			funccall, ok := node.(*ast.CallExpr)
 			if !ok {
 				return true
 			}
-			fmt.Println(sliceexpr)
+
+			fun, ok := funccall.Fun.(*ast.Ident)
+			if !ok {
+				return true
+			}
+			decl, ok := fun.Obj.Decl.(*ast.FuncDecl)
+			if !ok {
+				return true
+			}
+			if len(funccall.Args) > len(decl.Type.Params.List) && len(decl.Type.Params.List) == 1 {
+				fmt.Println(fun.Name)
+			}
 
 			return false
 		})

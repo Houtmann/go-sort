@@ -1,28 +1,42 @@
 package testdata
 
-import (
-	"database/sql"
-)
-
 type MyStruct struct {
+	A int
 	B int
-	A int `json:"a"`
 	C int
 }
 
 type MyStruct2 struct {
-	X int
+	D int
+	E string
+	X int `json:"x"`
 	Y int
-	Z int
-
-	V string
-	C int
+	Z int `json:"z"`
 }
 
 type Address struct {
-	Address2 sql.NullString `json:"address_2"`
-	Address1 sql.NullString
-	UserID   sql.NullInt64 `json:"user_id"`
-
-	HasShippings *bool
+	Address1 string
+	Address2 string
+	City     string
+	Phone    string
+	UserID   int64
 }
+
+//
+// func MyTestFunc() {
+// 	address := Address{
+// 		Address1: "address1",
+// 		Address2: "address2",
+//
+// 		Phone: "+33XXXXXXXX",
+// 		City:  "NY",
+// 	}
+// 	fmt.Println(address)
+// 	_ = struct {
+// 		BA string
+// 		BC string
+// 	}{
+// 		BC: "",
+// 		BA: "",
+// 	}
+// }
