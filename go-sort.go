@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	multichecker.Main(pkg.SliceSortAnalyzer)
+	multichecker.Main(pkg.StructFieldsSortAnalyzer, pkg.SliceSortAnalyzer)
 }
