@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"go/ast"
 	"sort"
 
@@ -41,10 +42,19 @@ func runslicesort(pass *analysis.Pass) (interface{}, error) {
 					return false
 				})
 			case *ast.ArrayType:
+				fmt.Println(composite)
 				issorted = sort.SliceIsSorted(composite.Elts, func(i, j int) bool {
-					ident1 := composite.Elts[i].(*ast.BasicLit).Value
-					ident2 := composite.Elts[j].(*ast.BasicLit).Value
-					return ident1 < ident2
+					if ident1, ok := composite.Elts[i].(*ast.Ident); ok {
+						if ident2, ok := composite.Elts[j].(*ast.Ident); ok {
+							return ident1.Name < ident2.Name
+						}
+					}
+					if ident1, ok := composite.Elts[i].(*ast.BasicLit); ok {
+						if ident2, ok := composite.Elts[j].(*ast.BasicLit); ok {
+							return ident1.Value < ident2.Value
+						}
+					}
+					return false
 				})
 			}
 
