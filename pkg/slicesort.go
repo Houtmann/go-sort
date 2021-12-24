@@ -3,13 +3,12 @@ package pkg
 import (
 	"fmt"
 	"go/ast"
-	"sort"
 
 	"golang.org/x/tools/go/analysis"
 )
 
 var SliceSortAnalyzer = &analysis.Analyzer{
-	Name: "slicesort",
+	Name: "slicesorter",
 	Doc:  "Checks if composite assignment was sorted",
 	Run:  runslicesort,
 }
@@ -21,45 +20,25 @@ func runslicesort(pass *analysis.Pass) (interface{}, error) {
 			if !ok {
 				return true
 			}
-			var (
-				issorted bool
-			)
+			_, ok = node.(*ast.GenDecl)
+			if ok {
+				fmt.Println(node)
+			}
+			var elems []Sortable
 			switch composite.Type.(type) {
 			case *ast.MapType:
-				issorted = sort.SliceIsSorted(composite.Elts, func(i, j int) bool {
-					key1 := composite.Elts[i].(*ast.KeyValueExpr).Key
-					key2 := composite.Elts[j].(*ast.KeyValueExpr).Key
-					if ident1, ok := key1.(*ast.Ident); ok {
-						if ident2, ok := key2.(*ast.Ident); ok {
-							return ident1.Name < ident2.Name
-						}
+				for i := range composite.Elts {
+					if kve, ok := composite.Elts[i].(*ast.KeyValueExpr); ok {
+						elems = append(elems, Wrap(kve.Key))
 					}
-					if ident1, ok := key1.(*ast.BasicLit); ok {
-						if ident2, ok := key2.(*ast.BasicLit); ok {
-							return ident1.Value < ident2.Value
-						}
-					}
-					return false
-				})
+				}
 			case *ast.ArrayType:
-				fmt.Println(composite)
-				issorted = sort.SliceIsSorted(composite.Elts, func(i, j int) bool {
-					if ident1, ok := composite.Elts[i].(*ast.Ident); ok {
-						if ident2, ok := composite.Elts[j].(*ast.Ident); ok {
-							return ident1.Name < ident2.Name
-						}
-					}
-					if ident1, ok := composite.Elts[i].(*ast.BasicLit); ok {
-						if ident2, ok := composite.Elts[j].(*ast.BasicLit); ok {
-							return ident1.Value < ident2.Value
-						}
-					}
-					return false
-				})
+				for i := range composite.Elts {
+					elems = append(elems, Wrap(composite.Elts[i]))
+				}
 			}
-
-			if !issorted {
-				pass.Reportf(node.Pos(), "fields of are not sorted alphabetically")
+			if !isSorted(elems) {
+				pass.Reportf(node.Pos(), "%s fields of are not sorted alphabetically", composite.Pos())
 				return true
 			}
 
@@ -68,4 +47,16 @@ func runslicesort(pass *analysis.Pass) (interface{}, error) {
 	}
 
 	return nil, nil
+}
+
+func Wrap(expr ast.Expr) Sortable {
+	switch elem := expr.(type) {
+	case *ast.Ident:
+		return &Ident{*elem}
+	case *ast.BasicLit:
+		return &BasicLit{*elem}
+	default:
+		// TODO error
+	}
+	return nil
 }

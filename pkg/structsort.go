@@ -14,6 +14,11 @@ var StructFieldsSortAnalyzer = &analysis.Analyzer{
 	Run:  run,
 }
 
+type StructSorter struct {
+	fset    *token.FileSet
+	structs []*ast.StructType
+}
+
 func run(pass *analysis.Pass) (interface{}, error) {
 	for _, file := range pass.Files {
 		ast.Inspect(file, func(node ast.Node) bool {
@@ -59,6 +64,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				}
 			}
 			if len(notsortedfields) > 0 {
+				pass.ReportRangef(node, "struct fields not sorted: %s", notsortedfields)
 				pass.Reportf(node.Pos(), "%s fields of are not sorted alphabetically", structdecl.Name)
 				return true
 			}
