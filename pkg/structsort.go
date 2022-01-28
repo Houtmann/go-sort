@@ -64,8 +64,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				}
 			}
 			if len(notsortedfields) > 0 {
-				pass.ReportRangef(node, "struct fields not sorted: %s", notsortedfields)
-				pass.Reportf(node.Pos(), "%s fields of are not sorted alphabetically", structdecl.Name)
+				sort.Strings(notsortedfields)
+				pass.Reportf(node.Pos(), "fields of are not sorted alphabetically and should be %v", notsortedfields)
 				return true
 			}
 			return false

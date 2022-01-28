@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"fmt"
 	"go/ast"
 
 	"golang.org/x/tools/go/analysis"
@@ -21,10 +20,7 @@ func runslicesort(pass *analysis.Pass) (interface{}, error) {
 				return true
 			}
 			_, ok = node.(*ast.GenDecl)
-			if ok {
-				fmt.Println(node)
-			}
-			var elems []Sortable
+			var elems []Elem
 			switch composite.Type.(type) {
 			case *ast.MapType:
 				for i := range composite.Elts {
@@ -38,7 +34,7 @@ func runslicesort(pass *analysis.Pass) (interface{}, error) {
 				}
 			}
 			if !isSorted(elems) {
-				pass.Reportf(node.Pos(), "%s fields of are not sorted alphabetically", composite.Pos())
+				pass.Reportf(node.Pos(), "fields of are not sorted alphabetically and should be %v ", sortElement(elems))
 				return true
 			}
 
@@ -49,7 +45,7 @@ func runslicesort(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-func Wrap(expr ast.Expr) Sortable {
+func Wrap(expr ast.Expr) Elem {
 	switch elem := expr.(type) {
 	case *ast.Ident:
 		return &Ident{*elem}

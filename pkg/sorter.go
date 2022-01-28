@@ -32,12 +32,22 @@ func (i *Ident) Name() string {
 	return i.Name()
 }
 
-type Sortable interface {
+type Elem interface {
 	Name() string
 }
 
-func isSorted[T Sortable](sortable []T) bool {
-	return sort.SliceIsSorted(sortable, func(i, j int) bool {
+func isSorted(sortable []Elem) bool {
+	issorted := sort.SliceIsSorted(sortable, func(i, j int) bool {
 		return sortable[i].Name() < sortable[j].Name()
 	})
+	return issorted
+}
+
+func sortElement(sortable []Elem) []string {
+	var sortedNames []string
+	for i := range sortable {
+		sortedNames = append(sortedNames, sortable[i].Name())
+	}
+	sort.Strings(sortedNames)
+	return sortedNames
 }
