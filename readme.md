@@ -3,14 +3,14 @@
 
 Create plugin for goling-ci
 
-`go build -buildmode=plugin ./plugin/`
+`go build -o gosort.so -buildmode=plugin ./plugin/`
 
 In .golangci.yml
 ```yaml
 linters-settings:
   custom:
-    example:
-      path: go-sort.so
+    gosort:
+      path: gosort.so
       description: go-sort linter check if struct fields are sorted
       original-url: github.com/Houtmann/go-sort
 ```
@@ -20,5 +20,5 @@ and add
 linters:
   disable-all: true
   enable:
-    - go-sort
+    - gosort
 ````
