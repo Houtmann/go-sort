@@ -25,16 +25,23 @@ func runslicesort(pass *analysis.Pass) (interface{}, error) {
 			case *ast.MapType:
 				for i := range composite.Elts {
 					if kve, ok := composite.Elts[i].(*ast.KeyValueExpr); ok {
-						elems = append(elems, Wrap(kve.Key))
+						if elem := Wrap(kve.Key); elem != nil {
+							elems = append(elems, elem)
+						}
 					}
 				}
 			case *ast.ArrayType:
 				for i := range composite.Elts {
-					elems = append(elems, Wrap(composite.Elts[i]))
+					if elem := Wrap(composite.Elts[i]); elem != nil {
+						if elem := Wrap(composite.Elts[i]); elem != nil {
+							elems = append(elems, elem)
+						}
+					}
 				}
 			}
+
 			if !isSorted(elems) {
-				pass.Reportf(node.Pos(), "fields of are not sorted alphabetically and should be %v ", sortElement(elems))
+				pass.Reportf(node.Pos(), "slice fields of are not sorted alphabetically and should be %v ", sortElement(elems))
 				return true
 			}
 
