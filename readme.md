@@ -1,7 +1,7 @@
 ## go-sort
 
 
-Create plugin for goling-ci
+Create plugin for golangci-lint
 
 `go build -o gosort.so -buildmode=plugin ./plugin/`
 
