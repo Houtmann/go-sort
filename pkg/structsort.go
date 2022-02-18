@@ -54,17 +54,19 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				lastPos = structtype.Fields.List[i].End()
 			}
 
-			var notsortedfields []string
+			var notsortedfields [][]string
 			for _, fieldnames := range groupedfields {
 				issorted := sort.SliceIsSorted(fieldnames, func(i, j int) bool {
 					return fieldnames[i] < fieldnames[j]
 				})
 				if !issorted {
-					notsortedfields = append(notsortedfields, fieldnames...)
+					notsortedfields = append(notsortedfields, fieldnames)
 				}
 			}
 			if len(notsortedfields) > 0 {
-				sort.Strings(notsortedfields)
+				for i := range notsortedfields {
+					sort.Strings(notsortedfields[i])
+				}
 				pass.Reportf(node.Pos(), "fields of are not sorted alphabetically and should be %v", notsortedfields)
 				return true
 			}
