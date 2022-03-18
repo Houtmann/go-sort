@@ -10,7 +10,6 @@ type analyzerPlugin struct{}
 func (*analyzerPlugin) GetAnalyzers() []*analysis.Analyzer {
 	return []*analysis.Analyzer{
 		pkg.StructFieldsSortAnalyzer,
-		pkg.SliceSortAnalyzer,
 	}
 }
 

@@ -2,6 +2,7 @@ package testdata
 
 import (
 	"database/sql"
+	"sync"
 )
 
 type MyStruct struct {
@@ -24,5 +25,36 @@ type Address struct {
 	Address1 sql.NullString
 	UserID   sql.NullInt64 `json:"user_id"`
 
-	HasShippings *bool
+	OK *bool
+}
+
+type EmbedStruct struct {
+	B struct {
+		B struct{}
+		A struct{}
+	}
+	// A
+	A struct {
+		B struct{}
+		A struct{}
+	}
+}
+
+type StructWithComment struct {
+	// C
+	C string
+
+	// G
+	G string
+
+	// A
+	B string
+	A string
+}
+
+type StructWithMutex struct {
+	B string
+
+	mu sync.Mutex
+	C  string
 }

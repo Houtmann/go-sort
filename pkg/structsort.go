@@ -41,17 +41,27 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				groupPos      = structtype.Fields.Pos()
 			)
 
+		loop:
 			for i := range structtype.Fields.List {
 				if len(structtype.Fields.List[i].Names) == 0 {
 					continue
 				}
+
+				for j := range ignoreRules {
+					if ignoreRules[j](structtype.Fields.List[i]) {
+						continue loop
+					}
+				}
+
 				if diff := structtype.Fields.List[i].Pos() - lastPos; diff == 2 || lastPos == 0 {
 					groupedfields[groupPos] = append(groupedfields[groupPos], structtype.Fields.List[i].Names[0].Obj.Name)
-				} else if diff == 3 {
+					lastPos = structtype.Fields.List[i].End()
+				} else if diff >= 3 {
 					groupPos = structtype.Fields.List[i].Pos()
 					groupedfields[groupPos] = append(groupedfields[groupPos], structtype.Fields.List[i].Names[0].Obj.Name)
+					lastPos = structtype.Fields.List[i].End()
 				}
-				lastPos = structtype.Fields.List[i].End()
+
 			}
 
 			var notsortedfields [][]string
@@ -76,3 +86,22 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	return nil, nil
 }
+
+func ignoreMutexField(node ast.Node) bool {
+	field, ok := node.(*ast.Field)
+	if !ok {
+		return false
+	}
+	typ, ok := field.Type.(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+	if typ.Sel.Name == "Mutex" {
+		return true
+	}
+	return false
+}
+
+type ignoreRule func(node ast.Node) bool
+
+var ignoreRules = []ignoreRule{ignoreMutexField}
