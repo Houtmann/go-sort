@@ -1,4 +1,4 @@
-module github.com/Houtmann/go-sort
+module github.com/houtmann/go-sort
 
 go 1.18
 
