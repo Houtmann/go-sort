@@ -36,7 +36,7 @@ type Elem interface {
 	Identifier() string
 }
 
-func isSorted(sortable []Elem) bool {
+func IsSorted(sortable []Elem) bool {
 	issorted := sort.SliceIsSorted(sortable, func(i, j int) bool {
 		return sortable[i].Identifier() < sortable[j].Identifier()
 	})

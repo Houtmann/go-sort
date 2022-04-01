@@ -40,7 +40,7 @@ func runslicesort(pass *analysis.Pass) (interface{}, error) {
 				}
 			}
 
-			if !isSorted(elems) {
+			if !IsSorted(elems) {
 				pass.Reportf(node.Pos(), "slice fields of are not sorted alphabetically and should be %v ", sortElement(elems))
 				return true
 			}
