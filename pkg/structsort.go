@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/token"
 	"sort"
+	"strings"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -39,6 +40,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				groupedfields = make(map[token.Pos][]string)
 				lastPos       token.Pos
 				groupPos      = structtype.Fields.Pos()
+				fieldNames    = make(map[string]string)
 			)
 
 		loop:
@@ -54,11 +56,16 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				}
 
 				if diff := structtype.Fields.List[i].Pos() - lastPos; diff == 2 || lastPos == 0 {
-					groupedfields[groupPos] = append(groupedfields[groupPos], structtype.Fields.List[i].Names[0].Obj.Name)
+					fieldname := strings.ToLower(structtype.Fields.List[i].Names[0].Obj.Name)
+					fieldNames[fieldname] = structtype.Fields.List[i].Names[0].Obj.Name
+					groupedfields[groupPos] = append(groupedfields[groupPos], fieldname)
 					lastPos = structtype.Fields.List[i].End()
 				} else if diff >= 3 {
+					fieldname := strings.ToLower(structtype.Fields.List[i].Names[0].Obj.Name)
+					fieldNames[fieldname] = structtype.Fields.List[i].Names[0].Obj.Name
+
 					groupPos = structtype.Fields.List[i].Pos()
-					groupedfields[groupPos] = append(groupedfields[groupPos], structtype.Fields.List[i].Names[0].Obj.Name)
+					groupedfields[groupPos] = append(groupedfields[groupPos], fieldname)
 					lastPos = structtype.Fields.List[i].End()
 				}
 
@@ -76,6 +83,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			if len(notsortedfields) > 0 {
 				for i := range notsortedfields {
 					sort.Strings(notsortedfields[i])
+					for j := range notsortedfields[i] {
+						fieldname, _ := fieldNames[notsortedfields[i][j]]
+						notsortedfields[i][j] = fieldname
+					}
 				}
 				pass.Reportf(node.Pos(), "fields of are not sorted alphabetically and should be %v", notsortedfields)
 				return true
